@@ -75,4 +75,33 @@ app.get(
   }
 );
 
+app.get("/", (req, res, next) => {
+  try {
+    return res
+      .status(200)
+      .json({ success: true, message: "Server is running" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.get("/health", (req, res, next) => {
+  try {
+    return res
+      .status(200)
+      .json({ success: true, message: "Server is healthy" });
+  } catch (err) {
+    next(err);
+  }
+});
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  return res.status(statusCode).json({
+    success: false,
+    message,
+  });
+});
+
 module.exports = app;
