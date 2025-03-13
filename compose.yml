@@ -1,0 +1,25 @@
+services:
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped          # Changed from 'always' for more control
+    container_name: mongodb
+    ports:
+      - "27017:27017"               # Quotes added for consistency
+    volumes:
+      - mongodb_data:/data/db       # Persistent data storage      # Enables authentication
+    networks:                       # Added for network isolation
+      - app-network
+    healthcheck:                    # Added to monitor container health
+      test: ["CMD", "mongo", "--eval", "db.runCommand('ping').ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  mongodb_data:
+    driver: local                  # Explicitly specify volume driver
+
+networks:
+  app-network:                    # Define a custom network
+    driver: bridge
