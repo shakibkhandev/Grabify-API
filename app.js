@@ -5,6 +5,7 @@ const session = require("express-session");
 const passport = require("./config/passport");
 const User = require("./models/userModel");
 const jwt = require("jsonwebtoken");
+const MongoStore = require("connect-mongo");
 
 const app = express();
 
@@ -23,13 +24,24 @@ app.use(
   })
 );
 
+// Configure session middleware with MongoDB store
 app.use(
   session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
+    secret: process.env.SESSION_SECRET, // Secret key for signing the session ID cookie
+    resave: false, // Don't save session if unmodified
+    saveUninitialized: false, // Don't create session until something is stored
+    store: MongoStore.create({
+      mongoUrl: process.env.NODE_ENV === "production" ? process.env.MONGO_DB_URI_PRO : process.env.MONGO_DB_URI_DEV, // MongoDB connection string
+      collectionName: "sessions", // Optional: Name of the collection to store sessions (default: 'sessions')
+      ttl: 14 * 24 * 60 * 60, // Optional: Time-to-live in seconds (e.g., 14 days)
+    }),
+    cookie: {
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      maxAge: 1000 * 60 * 60 * 24 * 14, // Cookie expiry: 14 days (in milliseconds)
+    },
   })
 );
+
 
 app.use(passport.initialize());
 
