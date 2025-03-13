@@ -9,10 +9,9 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `${process.env.BASE_URL_PRO}/auth/google/callback`,
+      callbackURL: `${process.env.NODE_ENV === "production" ? process.env.BASE_URL_PRO : process.env.BASE_URL_DEV}/auth/google/callback`,
     },
     async function (accessToken, refreshToken, profile, cb) {
-  
       return cb(null, profile);
     }
   )

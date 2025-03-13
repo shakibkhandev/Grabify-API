@@ -32,7 +32,7 @@ app.use(
     saveUninitialized: false, // Don't create session until something is stored
     store: MongoStore.create({
       mongoUrl: process.env.NODE_ENV === "production" ? process.env.MONGO_DB_URI_PRO : process.env.MONGO_DB_URI_DEV, // MongoDB connection string
-      collectionName: "sessions", // Optional: Name of the collection to store sessions (default: 'sessions')
+      collectionName: "sessions", 
       ttl: 14 * 24 * 60 * 60, // Optional: Time-to-live in seconds (e.g., 14 days)
     }),
     cookie: {
@@ -41,7 +41,6 @@ app.use(
     },
   })
 );
-
 
 app.use(passport.initialize());
 
@@ -59,6 +58,7 @@ app.get(
     }`,
   }),
   async function (req, res) {
+
     const user = await User.findOne({ email: req.user.emails[0].value });
     if (!user) {
       const newUser = new User({
@@ -73,8 +73,9 @@ app.get(
         { id: newUser.id },
         process.env.JWT_SECRET
       );
+      
       return res.redirect(
-        `${process.env.FRONTEND_URL_DEV}?token=${access_token}`
+        `${process.env.FRONTEND_URL_DEV}/?token=${access_token}`
       );
     }
     const access_token = await jwt.sign(
